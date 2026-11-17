@@ -1,28 +1,38 @@
-const topics = [
-  {n:"01",icon:"⚛️",title:"Estructura atòmica i taula periòdica",desc:"Models atòmics, configuració electrònica i propietats periòdiques.",lessons:4},
-  {n:"02",icon:"🔗",title:"Enllaç químic",desc:"Enllaç iònic, covalent, metàl·lic i forces intermoleculars.",lessons:4},
-  {n:"03",icon:"🧪",title:"Formulació i nomenclatura",desc:"Compostos inorgànics i introducció a la formulació orgànica.",lessons:3},
-  {n:"04",icon:"⚖️",title:"Estequiometria i reaccions",desc:"Ajustament, reactiu limitant, rendiment i càlculs químics.",lessons:5},
-  {n:"05",icon:"💧",title:"Gasos i dissolucions",desc:"Lleis dels gasos, concentracions i propietats de dissolucions.",lessons:4},
-  {n:"06",icon:"🌡️",title:"Termoquímica",desc:"Entalpia, llei de Hess i energia de les reaccions.",lessons:4},
-  {n:"07",icon:"⏱️",title:"Cinètica química",desc:"Velocitat de reacció, factors i energia d’activació.",lessons:3},
-  {n:"08",icon:"⚖️",title:"Equilibri químic",desc:"Kc, Kp, quocient de reacció i principi de Le Châtelier.",lessons:5},
-  {n:"09",icon:"🧊",title:"Solubilitat i equilibris heterogenis",desc:"Producte de solubilitat, precipitació i efecte de l’ió comú.",lessons:3},
-  {n:"10",icon:"🧫",title:"Àcids i bases",desc:"pH, força relativa, hidròlisi i solucions amortidores.",lessons:5},
-  {n:"11",icon:"📊",title:"Valoracions àcid-base",desc:"Corbes de valoració, indicadors i càlculs de concentració.",lessons:3},
-  {n:"12",icon:"🔋",title:"Redox i electroquímica",desc:"Nombre d’oxidació, piles, electròlisi i potencials.",lessons:5},
-  {n:"13",icon:"🧬",title:"Química orgànica",desc:"Grups funcionals, isomeria i reaccions orgàniques bàsiques.",lessons:4},
-];
+"use client";
+
+import { useMemo, useState } from "react";
+import { topics, studyPlan } from "../data/temari";
 
 export default function Home() {
+  const [selected, setSelected] = useState("01");
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [showResults, setShowResults] = useState(false);
+  const [tab, setTab] = useState<"teoria" | "exercicis" | "pla">("teoria");
+  const topic = topics.find((t) => t.id === selected) ?? topics[0];
+  const totalQuestions = topics.reduce((sum, t) => sum + t.exercises.length, 0);
+  const answered = Object.keys(answers).length;
+  const score = useMemo(() => topics.reduce((sum, t) => sum + t.exercises.filter((e, i) => answers[t.id + "-" + i] === e.answer).length, 0), [answers]);
+
+  function chooseTopic(id: string) {
+    setSelected(id);
+    setTab("teoria");
+    setShowResults(false);
+    document.getElementById("lesson")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return <>
-    <header className="topbar"><a className="brand" href="#"><span className="brand-mark">Q</span><span>Química PAU</span></a><nav className="nav"><a href="#temari">Temari</a><a href="#metode">Com funciona</a><a href="#pla">Pla d’estudi</a></nav><a className="top-cta" href="#temari">Comença a estudiar <span>→</span></a></header>
+    <header className="topbar"><a className="brand" href="#"><span className="brand-mark">Q</span><span>Química PAU</span></a><nav className="nav"><a href="#temari">Temari</a><a href="#lesson">Estudia</a><a href="#pla">Pla d’estudi</a></nav><a className="top-cta" href="#temari">Comença a estudiar <span>→</span></a></header>
     <main className="shell">
-      <section className="hero"><div><span className="eyebrow">✦ Preparació PAU Catalunya 2027</span><h1>La química que necessites. <span>La confiança que et falta.</span></h1><p>Entén la teoria, practica amb exercicis tipus PAU i aprèn dels teus errors. Tot el que necessites per arribar preparat a l’examen de Química.</p><div className="hero-actions"><a className="primary" href="#temari">Explora el temari <span>→</span></a><a className="secondary" href="#metode">Descobreix com funciona ↓</a></div></div><div className="hero-art"><div className="orbit"><div className="atom">Q</div><span className="electron"/></div><div className="formula one">H₂O · H₂SO₄</div><div className="formula two">pH = −log[H₃O⁺]</div><div className="formula three">ΔH = qₚ</div></div></section>
-      <section className="stats" id="metode"><div className="stat"><strong>13</strong><span>Blocs de contingut</span></div><div className="stat"><strong>100%</strong><span>Enfocat a les PAU de Catalunya</span></div><div className="stat"><strong>Al teu ritme</strong><span>Pràctica i seguiment personalitzat</span></div></section>
-      <section className="content-section" id="temari"><div className="section-head"><div><h2>El temari de Química</h2><p>Organitzat per blocs perquè avancis pas a pas.</p></div><span className="muted-note">Curs 2026–2027</span></div><div className="topic-grid">{topics.map(t=><article className="topic" key={t.n}><div className="topic-icon">{t.icon}</div><h3>{t.title}</h3><p>{t.desc}</p><div className="topic-foot"><span>{t.n} · {t.lessons} unitats</span><b>Properament ↗</b></div></article>)}</div></section>
-      <section className="bottom-cta" id="pla"><div><h2>Un bon resultat comença amb un bon pla.</h2><p>Segueix un itinerari setmanal fins a les PAU de juny de 2027.</p></div><a className="primary" href="#temari">Veure el temari →</a></section>
-    </main>
-    <footer className="shell"><span>© 2026 Química PAU Catalunya</span><span>Material de preparació. Continguts en desenvolupament.</span></footer>
+      <section className="hero"><div><span className="eyebrow">✦ Preparació PAU Catalunya 2027</span><h1>La química que necessites. <span>La confiança que et falta.</span></h1><p>Estudia la teoria essencial, practica amb preguntes tipus PAU i comprova què has après amb correccions explicades.</p><div className="hero-actions"><a className="primary" href="#temari">Explora el temari <span>→</span></a><a className="secondary" href="#pla">Consulta el pla d’estudi ↓</a></div></div><div className="hero-art"><div className="orbit"><div className="atom">Q</div><span className="electron"/></div><div className="formula one">H₂O · H₂SO₄</div><div className="formula two">pH = −log[H₃O⁺]</div><div className="formula three">ΔH = qₚ</div></div></section>
+      <section className="stats"><div className="stat"><strong>13</strong><span>Mòduls de contingut</span></div><div className="stat"><strong>{totalQuestions}</strong><span>Exercicis autocorrectius</span></div><div className="stat"><strong>{answered}/{totalQuestions}</strong><span>Preguntes respostes · {score} correctes</span></div></section>
+      <section className="content-section" id="temari"><div className="section-head"><div><h2>El temari de Química</h2><p>Tria un mòdul per consultar els apunts i practicar.</p></div><span className="muted-note">Curs 2026–2027</span></div><div className="topic-grid">{topics.map(t=><button type="button" className={"topic topic-button " + (selected === t.id ? "selected" : "")} key={t.id} onClick={() => chooseTopic(t.id)}><div className="topic-icon">{t.icon}</div><h3>{t.title}</h3><p>{t.desc}</p><div className="topic-foot"><span>{t.id} · {t.exercises.length} exercicis</span><b>Obre el mòdul ↗</b></div></button>)}</div></section>
+      <section className="lesson-section" id="lesson"><div className="lesson-heading"><span className="eyebrow">Mòdul {topic.id}</span><h2>{topic.icon} {topic.title}</h2><p>{topic.desc}</p></div><div className="tabs"><button className={tab === "teoria" ? "active" : ""} onClick={() => setTab("teoria")}>Teoria i fórmules</button><button className={tab === "exercicis" ? "active" : ""} onClick={() => setTab("exercicis")}>Exercicis ({topic.exercises.length})</button><button className={tab === "pla" ? "active" : ""} onClick={() => setTab("pla")}>Objectius</button></div>
+      {tab === "teoria" && <div className="lesson-grid"><article className="lesson-card"><h3>Apunts essencials</h3>{topic.theory.map((p,i)=><p className="theory-point" key={i}><span>{i+1}</span>{p}</p>)}</article><aside className="lesson-card formula-card"><h3>Fórmules i relacions</h3>{topic.formulas.map((f,i)=><div className="formula-line" key={i}>{f}</div>}<p className="small-note">Revisa sempre les unitats i les condicions d'aplicació de cada expressió.</p></aside></div>}
+      {tab === "exercicis" && <div className="exercise-list">{topic.exercises.map((e,i)=>{const key=topic.id+"-"+i;const chosen=answers[key];return <article className="exercise-card" key={key}><div className="exercise-meta"><span>Pregunta {i+1}</span><span className="difficulty">{e.difficulty}</span></div><h3>{e.question}</h3><div className="options">{e.options.map((o,j)=><button key={j} className={"option " + (chosen === j ? "chosen" : "") + (showResults && j === e.answer ? " correct" : "") + (showResults && chosen === j && chosen !== e.answer ? " incorrect" : "")} onClick={() => {setAnswers({...answers,[key]:j});setShowResults(false);}}><span>{String.fromCharCode(65+j)}</span>{o}</button>)}</div>{showResults && <div className={"explanation " + (chosen === e.answer ? "good" : "bad")}><b>{chosen === e.answer ? "Correcte!" : "Revisa la resposta."}</b> {e.explanation}</div>}</article>})}<div className="quiz-actions"><button className="primary" onClick={() => setShowResults(true)}>Corregir respostes</button><button className="secondary-button" onClick={() => {setAnswers({});setShowResults(false);}}>Reiniciar mòdul</button></div></div>}
+      {tab === "pla" && <article className="lesson-card objectives"><h3>En acabar aquest mòdul, has de saber…</h3><ul>{topic.objectives.map((o,i)=><li key={i}>{o}</li>)}</ul><button className="primary" onClick={() => setTab("exercicis")}>Practica ara →</button></article>}
+      </section>
+      <section className="content-section plan-section" id="pla"><div className="section-head"><div><h2>El teu pla setmanal</h2><p>Una sessió cada setmana, amb temps per completar el temari i repassar.</p></div><span className="muted-note">Gener – juny 2027</span></div><div className="plan-grid">{studyPlan.map(([date,title],i)=><div className="plan-item" key={date}><span className="plan-date">{date}</span><span className="plan-number">{String(i+1).padStart(2,"0")}</span><span>{title}</span></div>)}</div><p className="small-note">Calendari orientatiu. Ajusta les dates a la convocatòria oficial de les PAU.</p></section>
+      <section className="bottom-cta"><div><h2>Practica, corregeix i torna-ho a intentar.</h2><p>Les preguntes inclouen la resposta correcta i una explicació del raonament.</p></div><a className="primary" href="#lesson" onClick={() => setTab("exercicis")}>Anar als exercicis →</a></section>
+    </main><footer className="shell"><span>© 2026 Química PAU Catalunya</span><span>Material didàctic original de preparació.</span></footer>
   </>;
 }
